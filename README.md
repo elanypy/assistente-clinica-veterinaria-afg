@@ -31,17 +31,13 @@ Agente inteligente que consulta base de dados de clientes e agenda de serviços 
 | --- | --- |
 | Azure AI Foundry | Agente  |
 | Modelo implementado | gpt-4.1-nano |
-| Knowledge | base_agendamento_clinica_veterinaria.pdf |
 | Action | code interpreter|
-| Action | base_clientes_clinica_veterinaria.csv |
-
 
 ## 📚 Bases utilizadas
 | Base | Nome | Módulo
 | --- | --- |--- |
 | base_agendamento_clinica_veterinaria.pdf | Base de Agendamentos | Knowledge|
 | base_clientes_clinica_veterinaria.csv  | Base de cadastro e histórico de gastos  dos clientes | Action |
-
 
 ## ✅ Passo a passo
 1. Criação da conta gratuita no Azure;
