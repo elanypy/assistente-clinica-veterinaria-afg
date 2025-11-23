@@ -11,6 +11,7 @@ Clínica Veterinária de bairro que não possui um sistema de consulta ágil de 
 
 ## ⚙️ Solução
 Agente inteligente que consulta base de dados de clientes e agenda de serviços marcados.
+Observação: a ideia inicial era ser um agente que a partir de uma base de serviços agendados, realizaria consultas sobre próximos agendamentos e tipos de serviços e enviaria email para os tutores lembrar sobre o agendamento. Porém, houve problema ao conectar com a action Send email from Outlook, não foi possível utilizar.
 
 ## 🤖 Agente 
   
