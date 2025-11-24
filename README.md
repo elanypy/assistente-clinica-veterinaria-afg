@@ -1,31 +1,29 @@
 # Assistente Clínica Veterinária
-Objetivo: Assistente de Clínica Veterinária com conhecimento sobre os serviços agendados e base de clientes com histórico de gastos.
+Objetivo: Assistente de Clínica Veterinária para realização de orçamento de serviços.
 
 ## 📌  Visão Geral
 O que é o assistente é capaz de fazer?
-* Consultar como está agenda de serviços marcados;
-* Consultar base de clientes com histórico de gastos;
+* Realizar atendimento para serviços como BANHO, TOSA ou CONSULTA para gatos ou cachorros.
 
 ## 🧩 Problema
-Clínica Veterinária de bairro que não possui um sistema de consulta ágil de serviços e contabilidade. 
+Demora no atendimento para obtenção de informaçao sobre valores de serviços ofertados pela clínica gerava grande descontentamento dos clientes e/ou futuros clientes.
 
 ## ⚙️ Solução
-Agente inteligente que consulta base de dados de clientes e agenda de serviços marcados.
-Observação: a ideia inicial era ser um agente que a partir de uma base de serviços agendados, realizaria consultas sobre próximos agendamentos e tipos de serviços e enviaria email para os tutores lembrar sobre o agendamento. Porém, houve problema ao conectar com a action Send email from Outlook, não foi possível utilizar.
+Agente inteligente que realiza o cálculo de serviços e informa no momento os valores.
 
 ## 🤖 Agente 
   
 ### Tela 01
-- O que o assistente pode fazer para ajudar?
-<img width="840" height="688" alt="Captura de Tela 2025-11-21 às 19 10 29" src="https://github.com/user-attachments/assets/7e989125-f3e0-49eb-b88d-42907daec73c" />
+- Primeiro contato: gostaria de realizar um orçamento
+  <img width="1052" height="733" alt="Agents playground - Microsoft Foundry 4" src="https://github.com/user-attachments/assets/7911d615-1614-4a44-a911-26892d57e49a" />
 
 ### Tela 02
-- Consulta sobre os agendamentos para os próximos dias
-<img width="1199" height="663" alt="Captura de Tela 2025-11-21 às 19 15 28" src="https://github.com/user-attachments/assets/f4204632-ca49-4bed-b31c-be98cb56b965" />
+- Fornecimento de mais informaçoes
+<img width="1106" height="771" alt="Agents playground - Microsoft Foundry 5" src="https://github.com/user-attachments/assets/11919c73-757d-4a20-aec5-2b497c13fa3d" />
 
 ### Tela 03
-- Consulta sobre histórico de gastos de um cliente em específico
-<img width="833" height="708" alt="Captura de Tela 2025-11-21 às 19 11 40" src="https://github.com/user-attachments/assets/a355116b-93e7-49e5-8a7e-d9d4914c24ec" />
+- Orçamento realizado
+<img width="1066" height="586" alt="Agents playground - Microsoft Foundry 3" src="https://github.com/user-attachments/assets/df923a81-9055-4af7-8188-127046c8d01f" />
 
 ## ⚒️ Componentes utilizados
 | Componente | Descrição |
@@ -34,11 +32,74 @@ Observação: a ideia inicial era ser um agente que a partir de uma base de serv
 | Modelo implementado | gpt-4.1-nano |
 | Action | code interpreter|
 
-## 📚 Bases utilizadas
-| Base | Nome | Módulo
-| --- | --- |--- |
-| base_agendamento_clinica_veterinaria.pdf | Base de Agendamentos | Knowledge|
-| base_clientes_clinica_veterinaria.csv  | Base de cadastro e histórico de gastos  dos clientes | Action |
+## 💻 Código utilizado
+Código python:
+
+```python
+import pandas as pd
+
+def calcular_orcamento_veterinaria(itens_solicitados):
+    """
+    Calcula o orçamento baseada em uma lista de serviços padronizados.
+    itens_solicitados: Lista de dicionários [{'servico': 'chave', 'qtd': 1}]
+    """
+    
+    # Tabela de Preços
+    TABELA_PRECOS = {
+        "tosa_gato": {"preco": 145.00, "desc": "Tosa (Gato)"},
+        "tosa_cachorro": {"preco": 95.00, "desc": "Tosa (Cachorro)"},
+        "banho_gato": {"preco": 75.00, "desc": "Banho (Gato)"},
+        "banho_cachorro": {"preco": 120.00, "desc": "Banho (Cachorro)"},
+        "consulta": {"preco": 250.00, "desc": "Consulta Veterinária"},
+        "racao_gato": {"preco": 90.00, "desc": "Ração Gato (4kg)"},
+        "racao_cachorro": {"preco": 100.00, "desc": "Ração Cachorro (10kg)"}
+    }
+
+    detalhes_orcamento = []
+    total_geral = 0
+
+    for item in itens_solicitados:
+        chave = item.get('servico')
+        qtd = item.get('qtd', 1)
+        
+        if chave in TABELA_PRECOS:
+            servico_info = TABELA_PRECOS[chave]
+            subtotal = servico_info['preco'] * qtd
+            total_geral += subtotal
+            
+            detalhes_orcamento.append({
+                "Serviço": servico_info['desc'],
+                "Valor Unit.": servico_info['preco'],
+                "Quantidade": qtd,
+                "Subtotal": subtotal
+            })
+        else:
+            # Caso o agente passe uma chave errada
+            detalhes_orcamento.append({
+                "Serviço": f"Item não identificado ({chave})",
+                "Valor Unit.": 0.0,
+                "Quantidade": qtd,
+                "Subtotal": 0.0
+            })
+
+    # Criação de DataFrame 
+    df_orcamento = pd.DataFrame(detalhes_orcamento)
+    
+    # Formatação para exibição
+    print("=== ORÇAMENTO CLÍNICA VETERINÁRIA ===")
+    if not df_orcamento.empty:
+        print(df_orcamento.to_markdown(index=False, floatfmt=".2f"))
+        print(f"\nVALOR TOTAL A PAGAR: R$ {total_geral:.2f}")
+    else:
+        print("Nenhum serviço válido identificado.")
+pedido_cliente = [
+    {'servico': 'banho_cachorro', 'qtd': 2},  # "Dois banhos nos meus labradores"
+    {'servico': 'racao_gato', 'qtd': 1},      # "E um saco de ração pro gato"
+    {'servico': 'consulta', 'qtd': 1}         # "Aproveita e marca uma consulta"
+]
+
+calcular_orcamento_veterinaria(pedido_cliente)
+```
 
 ## ✅ Passo a passo
 1. Criação da conta gratuita no Azure;
@@ -46,8 +107,8 @@ Observação: a ideia inicial era ser um agente que a partir de uma base de serv
 3. Ativação do recurso Microsoft Foundry;
 4. Deploy do modelo utilizado - gpt-4.1-nano;
 5. Criação do Agent;
-6. Inclusão de uma base de conhecimento em Knowledge;
-7. Inclusão de uma action "code interpreter" a partir da inclusão de uma base .csv de dados sintéticos de histórico de gastos de clientes;
+6. Criação do script em python para cálculo dos serviços ofertados;
+7. Adição do script ao Action Code Interpreter;
 
 ## 🔗 Links de referência 
 - AzureFrontierGirls AI Challenge: [https://github.com/Miyake-Diogo/AzureFrontierGirls-AI-Challenge/tree/main](https://github.com/Miyake-Diogo/AzureFrontierGirls-AI-Challenge/tree/main)
